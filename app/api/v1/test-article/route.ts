@@ -1,3 +1,9 @@
+
+/**
+ * 测试文章
+ * curl -X GET http://localhost:3000/api/v1/test-article?url=https://www.baidu.com
+ */
+
 import { NextResponse } from 'next/server';
 import { JinaParser } from '@/lib/jinaParser';
 import { RecordService } from '@/lib/feishu/services/recordService';
