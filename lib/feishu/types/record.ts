@@ -12,8 +12,9 @@ export interface Attachment {
 }
 
 export interface Hyperlink {
+  type: 'url';
+  text: string;
   link: string;
-  text?: string;
 }
 
 // 字段值类型

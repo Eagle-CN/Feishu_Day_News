@@ -1,4 +1,3 @@
-
 /**
  * 测试文章
  * curl -X GET http://localhost:3000/api/v1/test-article?url=https://www.baidu.com
@@ -34,7 +33,11 @@ export async function GET(request: Request) {
     const result = await recordService.createRecord({
       fields: {
         标题: parsed.title,
-        链接: parsed.url,
+        链接: {
+          type: 'url',
+          text: parsed.title || '阅读原文',
+          link: parsed.url
+        },
         内容: parsed.content,
         摘要: parsed.description,
         发布时间: Date.now(),

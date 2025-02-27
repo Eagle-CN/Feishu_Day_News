@@ -9,44 +9,8 @@ import { QueryOptions } from './services/recordService';
 validateConfig();
 
 // 创建服务实例
-const tableService = new TableService(ENV.BASE_ID!, ENV.APP_ID!);
-const recordService = new RecordService(
-  ENV.BASE_ID!,
-  ENV.TABLE_ID!
-);
-
-// 获取访问令牌
-async function getAccessToken() {
-  try {
-    const response = await fetch(
-      'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          app_id: ENV.APP_ID,
-          app_secret: ENV.APP_SECRET,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new FeiShuError('Failed to get access token', await response.json());
-    }
-
-    const data = await response.json();
-    if (!data.tenant_access_token) {
-      throw new FeiShuError('Invalid token response', data);
-    }
-
-    return data.tenant_access_token;
-  } catch (error) {
-    console.error('Error getting access token:', error);
-    throw error;
-  }
-}
+const tableService = new TableService(ENV.BASE_ID!, ENV.TABLE_ID!);
+const recordService = new RecordService(ENV.BASE_ID!, ENV.TABLE_ID!);
 
 // 获取所有新闻数据
 export async function getAllNews(options: QueryOptions = {}) {
