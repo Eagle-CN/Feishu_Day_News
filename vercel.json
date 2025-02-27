@@ -1,6 +1,6 @@
 {
   "crons": [{
-    "path": "/api/cron",
-    "schedule": "0 0 * * *"
+    "path": "/api/cron/process-articles",
+    "schedule": "0 8 * * *"  // 每天早上8点执行
   }]
 } 

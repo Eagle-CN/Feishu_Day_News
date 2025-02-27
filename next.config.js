@@ -31,9 +31,6 @@ const nextConfig = {
       },
     ];
   },
-  experimental: {
-    serverActions: true,
-  },
   images: {
     domains: ['sf1-cdn-tos.douyinstatic.com', 'sf3-cdn-tos.douyinstatic.com'],
   },
