@@ -7,14 +7,14 @@ import {
 } from '../types/table';
 import { API_ENDPOINTS } from '../constants/api';
 import { FeiShuError } from '../utils/errors';
+import { BaseService } from './baseService';
 
-export class TableService {
-  private appToken: string;
-  private accessToken: string;
-
-  constructor(appToken: string, accessToken: string) {
-    this.appToken = appToken;
-    this.accessToken = accessToken;
+export class TableService extends BaseService {
+  constructor(
+    private appToken: string,
+    private tableId: string
+  ) {
+    super();
   }
 
   /**
@@ -22,10 +22,15 @@ export class TableService {
    */
   public async createTable(config: TableConfig): Promise<CreateTableResponse> {
     try {
+      console.log('Making request to:', API_ENDPOINTS.TABLES.CREATE(this.appToken));
+      
+      const token = await this.auth.getAccessToken();
+      console.log('Got access token:', token);
+
       const response = await fetch(API_ENDPOINTS.TABLES.CREATE(this.appToken), {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -37,17 +42,17 @@ export class TableService {
         })
       });
 
+      const data = await response.json();
+      console.log('API Response:', data);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new FeiShuError('Failed to create table', error);
+        throw new FeiShuError('Failed to create table', data);
       }
 
-      return await response.json();
+      return data;
     } catch (error) {
-      if (error instanceof FeiShuError) {
-        throw error;
-      }
-      throw new FeiShuError('Error creating table', error);
+      console.error('TableService error:', error);
+      throw error;
     }
   }
 
