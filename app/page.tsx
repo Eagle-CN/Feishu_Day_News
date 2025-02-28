@@ -14,9 +14,10 @@ export default async function Home() {
   console.log('News data in page:', JSON.stringify(news, null, 2)); // 添加日志
   
   return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">每日新闻汇总</h1>
-      <NewsGrid news={news} />
+    <main className="min-h-screen bg-[#1c1c1c] py-12">
+      <div className="container mx-auto px-4">
+        <NewsGrid news={news} />
+      </div>
     </main>
   );
 } 

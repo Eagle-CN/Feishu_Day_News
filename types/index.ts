@@ -6,9 +6,9 @@ export interface NewsItem {
     链接?: string;
     来源?: string;
     分类?: string;
-    发布时间?: string;
+    发布时间?: string | number;
     摘要?: string;
-    关键词?: string;
+    关键词?: string[];
     状态?: string;
   };
 }
