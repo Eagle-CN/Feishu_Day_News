@@ -14,6 +14,7 @@ export class SchedulerService {
       'account1',
       'account2'
     ]);
+    if (!ENV.JINA_API_KEY) throw new Error('JINA_API_KEY is required');
     this.jinaParser = new JinaParser(ENV.JINA_API_KEY);
     this.recordService = new RecordService(ENV.BASE_ID!, ENV.TABLE_ID!);
   }
@@ -30,11 +31,7 @@ export class SchedulerService {
           return {
             fields: {
               标题: parsed.title,
-              链接: {
-                text: parsed.url,
-                link: parsed.url,
-                type: 'url'
-              },
+              链接: parsed.url,
               内容: parsed.content,
               摘要: parsed.description,
               发布时间: new Date(article.pubDate).getTime(),
