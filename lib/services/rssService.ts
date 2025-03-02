@@ -105,79 +105,102 @@ export class RssService {
    */
   public async processRssArticles(rssUrl: string) {
     try {
-      console.log('\n=== 开始处理RSS订阅 ===');
-      console.log(`RSS地址: ${rssUrl}`);
+      console.group('\n=== RSS订阅处理 ===');
+      console.log(`📡 RSS地址: ${rssUrl}`);
 
       // 获取RSS文章列表
       const articles = await this.getRssContent(rssUrl);
-      console.log(`\n📚 总共获取到 ${articles.length} 篇文章`);
+      console.log(`\n📚 获取到 ${articles.length} 篇文章:`);
+      console.group();
+      articles.forEach((article, index) => {
+        console.log(`${index + 1}. ${article.title}`);
+      });
+      console.groupEnd();
 
       let processedCount = 0;
       let skippedCount = 0;
       let jinaParseCount = 0;
       let errorCount = 0;
 
-      // 打印所有文章标题
-      console.log('\n获取到的文章列表:');
-      articles.forEach((article, index) => {
-        console.log(`${index + 1}. ${article.title}`);
-      });
-
-      console.log('\n=== 开始处理文章 ===');
+      console.log('\n🔄 开始处理文章...');
       for (const article of articles) {
         try {
-          console.log(`\n处理文章: ${article.title}`);
-          console.log(`链接: ${article.link}`);
-          console.log(`发布时间: ${article.pubDate}`);
+          console.group(`\n文章: ${article.title}`);
+          console.log(`🔗 链接: ${article.link}`);
+          console.log(`📅 发布时间: ${article.pubDate}`);
 
           // 检查文章是否已存在
-          const { exists, existingContent } = await this.isArticleExists(article);
+          const { exists } = await this.isArticleExists(article);
           
           if (exists) {
-            console.log('✓ 文章已存在，跳过处理');
+            console.log('⏭️  文章已存在，跳过');
             skippedCount++;
+            console.groupEnd();
             continue;
           }
 
-          // 只有新文章才进行解析
-          console.log('🔄 开始解析文章内容...');
+          // 解析新文章
+          console.log('🔍 解析文章内容...');
           jinaParseCount++;
-          const parsed = await this.jinaParser.parseUrl(article.link);
-          console.log('✓ 文章解析完成');
+          try {
+            const parsed = await this.jinaParser.parseUrl(article.link);
+            console.log('✅ 解析完成');
 
-          // 保存到飞书
-          console.log('📝 保存到飞书...');
-          await this.recordService.createRecord({
-            fields: {
-              标题: article.title,
-              链接: article.link,  // 直接使用链接字符串
-              内容: parsed.content || article.content || '',
-              摘要: parsed.description || article.content?.slice(0, 200) || '',
-              发布时间: new Date(article.pubDate).getTime(),
-              来源: 'RSS订阅',
-              分类: '公众号',
-              状态: '待处理'
-            }
-          });
-          
-          console.log('✓ 保存成功');
-          processedCount++;
+            // 保存到飞书
+            console.log('💾 保存到飞书...');
+            await this.recordService.createRecord({
+              fields: {
+                标题: article.title,
+                链接: article.link,
+                内容: parsed.content || article.content || '',
+                摘要: parsed.description || article.content?.slice(0, 200) || '',
+                发布时间: new Date(article.pubDate).getTime(),
+                来源: 'RSS订阅',
+                分类: '公众号',
+                状态: '待处理'
+              }
+            });
+            
+            console.log('✅ 保存成功');
+            processedCount++;
+          } catch (parseError) {
+            console.log('⚠️  Jina解析失败，使用原始内容');
+            
+            await this.recordService.createRecord({
+              fields: {
+                标题: article.title,
+                链接: article.link,
+                内容: article.content || '',
+                摘要: article.content?.slice(0, 200) || '',
+                发布时间: new Date(article.pubDate).getTime(),
+                来源: 'RSS订阅',
+                分类: '公众号',
+                状态: '待处理'
+              }
+            });
+            
+            console.log('✅ 保存成功');
+            processedCount++;
+          }
+          console.groupEnd();
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          console.error(`❌ 处理失败: ${errorMessage}`);
+          console.error('❌ 处理失败:', errorMessage);
           errorCount++;
+          console.groupEnd();
           continue;
         }
       }
 
-      // 打印处理统计
-      console.log('\n=== 处理完成 ===');
-      console.log('📊 处理统计:');
-      console.log(`- 总文章数: ${articles.length}`);
-      console.log(`- 已存在文章: ${skippedCount}`);
-      console.log(`- 新增文章: ${processedCount}`);
-      console.log(`- Jina解析次数: ${jinaParseCount}`);
-      console.log(`- 处理失败: ${errorCount}`);
+      console.log('\n📊 处理统计');
+      console.group();
+      console.log(`总文章数: ${articles.length}`);
+      console.log(`已存在: ${skippedCount}`);
+      console.log(`新增: ${processedCount}`);
+      console.log(`解析次数: ${jinaParseCount}`);
+      console.log(`失败: ${errorCount}`);
+      console.groupEnd();
+      console.groupEnd();
 
       return {
         success: true,
@@ -188,7 +211,8 @@ export class RssService {
         totalCount: articles.length
       };
     } catch (error) {
-      console.error('\n❌ 处理过程出错:', error);
+      console.error('❌ 处理过程出错:', error);
+      console.groupEnd();
       throw error;
     }
   }
